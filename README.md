@@ -66,6 +66,22 @@ http://127.0.0.1:8000/
 
 > The Docker image includes Tesseract OCR, which is required by the image editor features.
 
+## Docker Compose
+
+Start the app with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Stop the service with:
+
+```bash
+docker compose down
+```
+
+This mounts the repository into the container so code changes are available immediately.
+
 ## Project Structure
 
 - `app/`
