@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Editor</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <!-- Top Navigation Tabs -->
+    <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="editor">📄 PDF Editor</button>
+        <button class="tab-btn" data-tab="img-editor">🖼️ Image Editor</button>
+        <button class="tab-btn" data-tab="img-to-pdf">🖼️→PDF Image to PDF</button>
+        <button class="tab-btn" data-tab="pdf-to-img">PDF→🖼️ PDF to Image</button>
+    </nav>
+
+    <!-- Tab: PDF Editor -->
+    <div id="tab-editor" class="tab-content active">
+        <!-- Upload Screen -->
+        <div id="upload-screen" class="screen active">
+            <div class="upload-container">
+                <h1>📄 PDF Editor</h1>
+                <p>Upload a PDF to start inline editing</p>
+                <div class="drop-zone" id="drop-zone">
+                    <span class="drop-icon">📁</span>
+                    <p>Drag & drop a PDF here</p>
+                    <p class="or-text">or</p>
+                    <label class="file-btn">
+                        Choose File
+                        <input type="file" id="file-input" accept=".pdf" hidden>
+                    </label>
+                </div>
+                <div id="upload-progress" class="hidden">
+                    <div class="progress-bar"><div class="progress-fill"></div></div>
+                    <p class="progress-text">Uploading...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Editor Screen -->
+        <div id="editor-screen" class="screen">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <button id="btn-back" class="tool-btn" title="Back to upload">← Back</button>
+                    <span class="separator"></span>
+                    <button id="btn-draw" class="tool-btn" data-tool="draw" title="Freehand Draw">✏️ Draw</button>
+                    <button id="btn-add-text" class="tool-btn" data-tool="addtext" title="Add New Text">T+ New Text</button>
+                    <button id="btn-image" class="tool-btn" data-tool="image" title="Add Image">🖼️ Image</button>
+                </div>
+                <div class="toolbar-center">
+                    <button id="btn-prev-page" class="tool-btn" title="Previous page">◀</button>
+                    <span id="page-indicator">Page 1 / 1</span>
+                    <button id="btn-next-page" class="tool-btn" title="Next page">▶</button>
+                </div>
+                <div class="toolbar-right">
+                    <button id="btn-delete-page" class="tool-btn danger" title="Delete current page">🗑️ Page</button>
+                    <span class="separator"></span>
+                    <button id="btn-download" class="tool-btn primary" title="Download edited PDF">⬇️ Download</button>
+                </div>
+            </div>
+            <div class="info-bar">
+                <span>💡 Click on any text to edit it inline. Changes preserve original formatting.</span>
+            </div>
+            <div class="editor-body">
+                <div class="page-wrapper" id="page-wrapper">
+                    <div class="page-container" id="page-container">
+                        <img id="pdf-image" class="pdf-background" alt="PDF Page">
+                        <div id="text-layer" class="text-layer"></div>
+                        <canvas id="draw-canvas" class="draw-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: Image Editor -->
+    <div id="tab-img-editor" class="tab-content">
+        <!-- Upload state -->
+        <div id="img-editor-upload" class="screen active">
+            <div class="upload-container">
+                <h1>🖼️ Image Editor</h1>
+                <p>Upload an image to edit text inline or remove filled data</p>
+                <div class="drop-zone" id="img-editor-drop-zone">
+                    <span class="drop-icon">🖼️</span>
+                    <p>Drag & drop an image here</p>
+                    <p class="or-text">or</p>
+                    <label class="file-btn">
+                        Choose Image
+                        <input type="file" id="img-editor-file-input" accept="image/*" hidden>
+                    </label>
+                </div>
+                <div id="img-editor-progress" class="hidden">
+                    <div class="progress-bar"><div class="progress-fill"></div></div>
+                    <p class="progress-text">Processing OCR...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Editor state -->
+        <div id="img-editor-workspace" class="screen">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <button id="img-editor-back" class="tool-btn">← Back</button>
+                    <span class="separator"></span>
+                    <button id="img-editor-rotate-left" class="tool-btn" title="Rotate 90° Left">↺ Left</button>
+                    <button id="img-editor-rotate-right" class="tool-btn" title="Rotate 90° Right">↻ Right</button>
+                    <span class="separator"></span>
+                    <button id="img-editor-remove-all" class="tool-btn danger" title="Remove all detected filled data">🧹 Remove All Filled Data</button>
+                    <button id="img-editor-remove-selected" class="tool-btn" title="Remove selected text blocks">🗑️ Remove Selected</button>
+                </div>
+                <div class="toolbar-right">
+                    <button id="img-editor-download" class="tool-btn primary">⬇️ Download</button>
+                </div>
+            </div>
+            <div class="info-bar">
+                <span>💡 <strong style="color:#ffa500">Orange</strong> = filled/handwritten data | <strong style="color:#666">Gray</strong> = printed labels | Ctrl+Click to select for removal | "Remove All Filled Data" only removes orange blocks</span>
+            </div>
+            <div class="editor-body">
+                <div class="page-wrapper">
+                    <div class="img-editor-container" id="img-editor-container">
+                        <img id="img-editor-image" class="pdf-background" alt="Image">
+                        <div id="img-editor-text-layer" class="text-layer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: Image to PDF -->
+    <div id="tab-img-to-pdf" class="tab-content">
+        <div class="convert-container">
+            <h2>🖼️ → PDF: Convert Images to PDF</h2>
+            <p>Upload one or more images to combine into a single PDF document.</p>
+
+            <div class="drop-zone" id="img-drop-zone">
+                <span class="drop-icon">🖼️</span>
+                <p>Drag & drop images here</p>
+                <p class="or-text">or</p>
+                <label class="file-btn">
+                    Choose Images
+                    <input type="file" id="img-file-input" accept="image/*" multiple hidden>
+                </label>
+            </div>
+
+            <div id="img-preview-area" class="preview-area hidden">
+                <h3>Selected Images <span id="img-count"></span></h3>
+                <div id="img-preview-list" class="preview-list"></div>
+                <div class="convert-actions">
+                    <button id="img-clear-btn" class="tool-btn danger">Clear All</button>
+                    <button id="img-convert-btn" class="tool-btn primary">⬇️ Convert & Download PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: PDF to Image -->
+    <div id="tab-pdf-to-img" class="tab-content">
+        <div class="convert-container">
+            <h2>PDF → 🖼️: Convert PDF to Images</h2>
+            <p>Upload a PDF to export each page as an image.</p>
+
+            <div class="drop-zone" id="pdf-drop-zone">
+                <span class="drop-icon">📄</span>
+                <p>Drag & drop a PDF here</p>
+                <p class="or-text">or</p>
+                <label class="file-btn">
+                    Choose PDF
+                    <input type="file" id="pdf-file-input" accept=".pdf" hidden>
+                </label>
+            </div>
+
+            <div id="pdf-options" class="convert-options hidden">
+                <h3>Options</h3>
+                <div class="option-row">
+                    <label>Format:
+                        <select id="pdf-img-format">
+                            <option value="png">PNG (high quality)</option>
+                            <option value="jpeg">JPEG (smaller size)</option>
+                        </select>
+                    </label>
+                    <label>Quality (zoom):
+                        <select id="pdf-img-zoom">
+                            <option value="1">1x (72 DPI)</option>
+                            <option value="2" selected>2x (144 DPI)</option>
+                            <option value="3">3x (216 DPI)</option>
+                            <option value="4">4x (288 DPI)</option>
+                        </select>
+                    </label>
+                </div>
+                <p id="pdf-file-info" class="file-info"></p>
+                <div class="convert-actions">
+                    <button id="pdf-convert-btn" class="tool-btn primary">⬇️ Convert & Download ZIP</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/editor.js" type="module"></script>
+    <script src="/static/convert.js" type="module"></script>
+    <script src="/static/image-editor.js" type="module"></script>
+</body>
+</html>
