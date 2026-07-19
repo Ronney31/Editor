@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pyt
+*.cover
+coverage.xml
+htmlcov/
+.pytest_cache/
+.pytype/
+.Python
+env/
+venv/
+.venv/
+
+# Virtual environments
+venv/
+.venv/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+docker-compose.override.yml
+
+# Application files
+instance/
+.webassets-cache
+
+# Others
+*.sqlite3
